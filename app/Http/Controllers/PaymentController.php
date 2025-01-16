@@ -12,6 +12,7 @@ class PaymentController extends Controller
 {
     public function createCheckoutSession(Request $request)
     {
+        $price = $request->price;
         // Set Stripe secret key
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -24,7 +25,7 @@ class PaymentController extends Controller
                     'product_data' => [
                         'name' => 'Sample Product',
                     ],
-                    'unit_amount' => 2000, // Amount in cents (e.g., $20.00)
+                    'unit_amount' => $price, // Amount in cents (e.g., $20.00)
                 ],
                 'quantity' => 1,
             ]],
