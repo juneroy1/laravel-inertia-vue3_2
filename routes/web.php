@@ -1,18 +1,37 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+use Inertia\Inertia;
+use App\Http\Controllers\PaymentController;
 Route::get('/', function () {
-    return view('welcome');
+    sleep(2);
+    return Inertia::render('Home', [
+        'stripeKey' => config('services.stripe.key'),
+    ]);
 });
+
+Route::get('/contact', function () {
+    sleep(2);
+    return Inertia::render('Contact');
+});
+
+Route::get('/settings', function () {
+    sleep(2);
+    return Inertia::render('Settings');
+});
+
+
+Route::get('/payment/success', function () {
+    return Inertia::render('Payment/Success');
+});
+
+Route::get('/payment/cancel', function () {
+    return Inertia::render('Payment/Cancel');
+});
+
+
+
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+Route::post('/create-checkout-session', [PaymentController::class, 'createCheckoutSession'])->name('checkout.session');
+

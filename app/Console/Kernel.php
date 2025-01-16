@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function (){
             \Log::info("this is a test schedule");
         })->everyMinute();
+
+        $schedule->command('app:payment-reminder-command')->everyMinute();
     }
 
     /**
