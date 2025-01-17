@@ -4,36 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SuccessPayment;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use App\Http\Requests\CreateCheckoutSessionRequest;
+use App\Services\StripeService;
 
 class PaymentController extends Controller
 {
-    public function createCheckoutSession(Request $request)
+    protected $stripeService;
+
+    public function __construct(StripeService $stripeService){
+        $this->stripeService = $stripeService;
+    }
+
+    public function createCheckoutSession(CreateCheckoutSessionRequest $request)
     {
-        $price = $request->price;
-        // Set Stripe secret key
-        Stripe::setApiKey(config('services.stripe.secret'));
+        // use the validated price from the form request
+        $price = $request->validated()['price'];
 
-        // Create a checkout session
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => 'Sample Product',
-                    ],
-                    'unit_amount' => $price, // Amount in cents (e.g., $20.00)
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => route('payment.success'),
-            'cancel_url' => route('payment.cancel'),
-        ]);
+        // delegate the session creation to the Stripe service
+        $session = $this->stripeService->createCheckoutSession($price);
 
+        // return the session ID to the frontend
         return response()->json(['id' => $session->id]);
     }
 
